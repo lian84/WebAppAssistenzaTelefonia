@@ -109,7 +109,6 @@ function caricaTabellaClienti() {
       tabellaHtml += "<td><span contenteditable='false' class='editable'>" + assistenza.nome + "</span></td>";
       tabellaHtml += "<td><span contenteditable='false' class='editable'>" + assistenza.indirizzo + "</span></td>";
       tabellaHtml += "<td><button onclick='modificaAssistenza(this)' class='btn btn-primary'>Modifica</button></td>";
-      tabellaHtml += "<td><button onclick='salvaModifiche(this)' class='btn btn-success btn-salva' disabled>Salva</button></td>";
       tabellaHtml += "</tr>";
     }
 
@@ -122,55 +121,53 @@ function modificaAssistenza(button) {
   var row = $(button).closest("tr");
   var cells = row.find(".editable");
   cells.attr("contenteditable", "true");
-  $(button).prop("disabled", true);
-  row.find(".btn-salva").prop("disabled", false);
+
+  var saveButton = $("<button>", {
+    class: "btn btn-success",
+    text: "Salva",
+    click: function() {
+      salvaModifiche(this);
+    }
+  });
+
+  $(button).replaceWith(saveButton);
 }
 
-function salvaModifiche(button) {
-  var assistenzaCorrente = {
-    id: $(button).closest("tr").find("td:eq(0)").text(),
-    nome: $(button).closest("tr").find("td:eq(1) span").text(),
-    indirizzo: $(button).closest("tr").find("td:eq(2) span").text()
-  };
 
+function salvaModifiche(button) {
   var row = $(button).closest("tr");
   var cells = row.find(".editable");
   cells.attr("contenteditable", "false");
-  $(button)
-    .text("Modifica")
-    .removeClass("btn-success")
-    .addClass("btn-primary")
-    .unbind("click")
-    .click(function() {
-      modificaAssistenza(this);
+
+  // Esegui solo se il pulsante è nello stato "Salva"
+  if ($(button).hasClass("btn-success")) {
+    $(button).text("Modifica").removeClass("btn-success").addClass("btn-primary");
+
+    var assistenzaCorrente = {
+      id: row.find("td:eq(0)").text(),
+      nome: row.find("td:eq(1) span").text(),
+      indirizzo: row.find("td:eq(2) span").text()
+    };
+
+    $.ajax({
+      url: "/api/upassistenza/" + assistenzaCorrente.id,
+      type: "PUT",
+      contentType: "application/json",
+      data: JSON.stringify(assistenzaCorrente),
+      success: function(response) {
+        // Aggiorna la tabella con i dati salvati
+        row.find("td:eq(1) span").text(response.nome);
+        row.find("td:eq(2) span").text(response.indirizzo);
+      },
+      error: function(xhr, status, error) {
+        // Gestisci eventuali errori nella chiamata REST
+      }
     });
-
-  alert("Dati da inviare al database: " + JSON.stringify(assistenzaCorrente));
-
-  $.ajax({
-  url: "/api/upassistenza/" + assistenzaCorrente.id,
-  type: "PUT",
-  contentType: "application/json",
-  data: JSON.stringify(assistenzaCorrente),
-  success: function(response) {
-    // Aggiorna la tabella con i dati salvati
-    row.find("td:eq(1) span").text(response.nome);
-    row.find("td:eq(2) span").text(response.indirizzo);
-  },
-  error: function(xhr, status, error) {
-    // Gestisci eventuali errori nella chiamata REST
   }
-});
 }
-
-
-
 </script>
 
-
-</script>
-
-
+<!-- Script jQuery per caricare la tabella dei articoli -->
 <script>
 function caricaTabellaArticoli() {
     $.get("/api/clienti", function(data) {

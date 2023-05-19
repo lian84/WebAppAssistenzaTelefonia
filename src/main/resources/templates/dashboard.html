@@ -5,26 +5,25 @@
   <title>Dashboard</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.1/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+
   <style>
-        /* Personalizza lo stile della navbar */
-        .navbar {
-            background-color: #f8f9fa;
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .navbar-nav .nav-link {
-            color: #333;
-        }
-
-        .navbar-nav .nav-link:hover {
-            color: #000;
-        }
-
-    </style>
+    /* Personalizza lo stile della navbar */
+    .navbar {
+        background-color: #f8f9fa;
+    }
+    .navbar-brand {
+        font-weight: bold;
+        color: #333;
+    }
+    .navbar-nav .nav-link {
+        color: #333;
+    }
+    .navbar-nav .nav-link:hover {
+        color: #000;
+    }
+  </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light">
@@ -50,159 +49,12 @@
   </div>
 </nav>
 
-<!-- Tabella dei clienti -->
-<div class="mt-5" id="tabellaClientiContainer"></div>
+<!-- Tabella dei contenuti -->
+<div class="mt-5" id="tabellaContainer"></div>
 
-
-<script>
-function caricaTabellaClienti() {
-    $.get("/api/clienti", function(data) {
-        var tabellaHtml = "<table class='table table-striped table-bordered table-hover'>";
-        tabellaHtml += "<thead><tr><th>Cod.Cliente</th><th>Nome</th><th>Cognome</th><th>Indirizzo</th><th>Comune</th><th>CAP</th><th>Prov.</th><th>Telefono</th><th>E-Mail</th><th>Marca</th><th>Modello</th><th>Tipo guasto</th><th>Assistenza</th><th>Art. in ass</th></tr></thead>";
-        tabellaHtml += "<tbody>";
-        for (var i = 0; i < data.length; i++) {
-            var cliente = data[i];
-            tabellaHtml += "<tr>";
-            tabellaHtml += "<td>" + cliente.id + "</td>";
-            tabellaHtml += "<td>" + cliente.nome + "</td>";
-            tabellaHtml += "<td>" + cliente.cognome + "</td>";
-            tabellaHtml += "<td>" + cliente.indirizzo + "</td>";
-            tabellaHtml += "<td>" + cliente.comune + "</td>";
-            tabellaHtml += "<td>" + cliente.cap + "</td>";
-            tabellaHtml += "<td>" + cliente.provincia + "</td>";
-            tabellaHtml += "<td>" + cliente.tel + "</td>";
-            tabellaHtml += "<td>" + cliente.mail + "</td>";
-            for (var j = 0; j < cliente.articoli.length; j++) {
-                var articolo = cliente.articoli[j];
-                tabellaHtml += "<td>" + articolo.marca + "</td>";
-                tabellaHtml += "<td>" + articolo.modello + "</td>";
-                tabellaHtml += "<td>" + articolo.tipo_guasto + "</td>";
-                tabellaHtml += "<td>" + articolo.assistenza.nome + ", " + articolo.assistenza.indirizzo + "</td>";
-                if (j == 0) {
-                    tabellaHtml += "<td rowspan='" + cliente.articoli.length + "'>" + cliente.articoli.length + "</td>";
-                }
-                tabellaHtml += "</tr>";
-            }
-        }
-        tabellaHtml += "</tbody></table>";
-        $("#tabellaClientiContainer").html(tabellaHtml);
-    });
-};
-
-</script>
-
-
-<!-- Script jQuery per caricare la tabella dei clienti -->
-<script>
-  function caricaTabellaAssistenza() {
-  var assistenzaCorrente = {}; // Variabile per tenere traccia dell'assistenza corrente
-
-  $.get("/api/assistenza", function(data) {
-    var tabellaHtml = "<table class='table table-striped table-bordered table-hover'>";
-    tabellaHtml += "<thead><tr><th>Cod.</th><th>Nome</th><th>Indirizzo</th><th>Azioni</th></tr></thead>";
-    tabellaHtml += "<tbody>";
-
-    for (var i = 0; i < data.length; i++) {
-      var assistenza = data[i];
-      tabellaHtml += "<tr>";
-      tabellaHtml += "<td>" + assistenza.id + "</td>";
-      tabellaHtml += "<td><span contenteditable='false' class='editable'>" + assistenza.nome + "</span></td>";
-      tabellaHtml += "<td><span contenteditable='false' class='editable'>" + assistenza.indirizzo + "</span></td>";
-      tabellaHtml += "<td><button onclick='modificaAssistenza(this)' class='btn btn-primary'>Modifica</button></td>";
-      tabellaHtml += "</tr>";
-    }
-
-    tabellaHtml += "</tbody></table>";
-    $("#tabellaClientiContainer").html(tabellaHtml);
-  });
-}
-
-function modificaAssistenza(button) {
-  var row = $(button).closest("tr");
-  var cells = row.find(".editable");
-  cells.attr("contenteditable", "true");
-
-  var saveButton = $("<button>", {
-    class: "btn btn-success",
-    text: "Salva",
-    click: function() {
-      salvaModifiche(this);
-    }
-  });
-
-  $(button).replaceWith(saveButton);
-}
-
-
-function salvaModifiche(button) {
-  var row = $(button).closest("tr");
-  var cells = row.find(".editable");
-  cells.attr("contenteditable", "false");
-
-  // Esegui solo se il pulsante è nello stato "Salva"
-  if ($(button).hasClass("btn-success")) {
-    $(button).text("Modifica").removeClass("btn-success").addClass("btn-primary");
-
-    var assistenzaCorrente = {
-      id: row.find("td:eq(0)").text(),
-      nome: row.find("td:eq(1) span").text(),
-      indirizzo: row.find("td:eq(2) span").text()
-    };
-
-    $.ajax({
-      url: "/api/upassistenza/" + assistenzaCorrente.id,
-      type: "PUT",
-      contentType: "application/json",
-      data: JSON.stringify(assistenzaCorrente),
-      success: function(response) {
-        // Aggiorna la tabella con i dati salvati
-        row.find("td:eq(1) span").text(response.nome);
-        row.find("td:eq(2) span").text(response.indirizzo);
-      },
-      error: function(xhr, status, error) {
-        // Gestisci eventuali errori nella chiamata REST
-      }
-    });
-  }
-}
-
-
-
-
-
-</script>
-
-<script>
-function caricaTabellaArticoli() {
-    $.get("/api/clienti", function(data) {
-        var tabellaHtml = "<table class='table table-striped table-bordered table-hover'>";
-        tabellaHtml += "<thead><tr><th>Codice Articolo</th><th>Tipologia</th><th>Marca</th><th>Modello</th><th>Descrizione Guasto</th><th>Assistenza</th><th>Cliente</th></tr></thead>";
-        tabellaHtml += "<tbody>";
-        for (var i = 0; i < data.length; i++) {
-            var cliente = data[i];
-            for(var j = 0; j < cliente.articoli.length; j++) {
-                var articolo = cliente.articoli[j];
-                tabellaHtml += "<tr>";
-                tabellaHtml += "<td>" + articolo.id + "</td>";
-                tabellaHtml += "<td>" + articolo.tipologia.nome_tipologia + "</td>";
-                tabellaHtml += "<td>" + articolo.marca + "</td>";
-                tabellaHtml += "<td>" + articolo.modello + "</td>";
-                tabellaHtml += "<td>" + articolo.tipo_guasto + "</td>";
-                tabellaHtml += "<td>" + articolo.assistenza.nome + "</td>";
-                tabellaHtml += "<td>" + cliente.nome + " " + cliente.cognome + "</td>";
-
-                tabellaHtml += "</tr>";
-            }
-        }
-        tabellaHtml += "</tbody></table>";
-        $("#tabellaClientiContainer").html(tabellaHtml);
-    });
-}
-
-</script>
+<script src="/main.js"></script> <!-- Includi il file JavaScript principale -->
 
 <!-- Bootstrap JS Bundle con jQuery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.1/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
