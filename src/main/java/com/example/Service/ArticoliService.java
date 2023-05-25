@@ -16,7 +16,11 @@ public class ArticoliService {
         return articoliRepository.findAll();
     }
 
+    public List<Articoli> getArticoliAssistenzaByClienteId(Long clienteId) {
+        // Effettua una query al database per recuperare gli articoli in assistenza del cliente
+        List<Articoli> articoliAssistenza = articoliRepository.findByClienteId(clienteId);
 
-
-    // Altri metodi per gestire operazioni di business sui clienti, ad esempio creazione, aggiornamento, cancellazione, ecc.
+        // Restituisci la lista di articoli in assistenza
+        return articoliAssistenza;
+    }
 }
