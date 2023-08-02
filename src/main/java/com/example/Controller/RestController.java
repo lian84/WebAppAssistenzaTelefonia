@@ -108,15 +108,20 @@ public class RestController {
     }
 
 
-    @GetMapping("/api/clienti/{clienteId}/assistenza")
-    public ResponseEntity<List<Articoli>> getArticoliAssistenzaCliente(@PathVariable("clienteId") Long clienteId) {
-        // Logica per recuperare gli articoli in assistenza del cliente dal database
-        List<Articoli> articoliAssistenza = articoliService.getArticoliAssistenzaByClienteId(clienteId);
-
-        // Restituisci gli articoli in assistenza come corpo della risposta
-        return ResponseEntity.ok(articoliAssistenza);
+    @GetMapping("/clienti/{id_cliente}/assistenza")
+    public ResponseEntity<List<Articoli>> getProdottiInAssistenza(@PathVariable("id_cliente") Long idCliente) {
+        Cliente cliente = clienteService.getClienteById(idCliente);
+        if (cliente != null) {
+            List<Articoli> prodottiAssistenza = cliente.getArticoli();
+            if (prodottiAssistenza.isEmpty()) {
+                return ResponseEntity.noContent().build(); // Nessun prodotto in assistenza trovato
+            } else {
+                return ResponseEntity.ok(prodottiAssistenza);
+            }
+        } else {
+            return ResponseEntity.notFound().build(); // Cliente non trovato
+        }
     }
-
 
 }
 

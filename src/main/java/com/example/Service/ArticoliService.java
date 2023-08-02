@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ArticoliService {
@@ -16,11 +17,4 @@ public class ArticoliService {
         return articoliRepository.findAll();
     }
 
-    public List<Articoli> getArticoliAssistenzaByClienteId(Long clienteId) {
-        // Effettua una query al database per recuperare gli articoli in assistenza del cliente
-        List<Articoli> articoliAssistenza = articoliRepository.findByClienteId(clienteId);
-
-        // Restituisci la lista di articoli in assistenza
-        return articoliAssistenza;
-    }
 }

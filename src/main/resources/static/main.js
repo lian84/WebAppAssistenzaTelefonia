@@ -1,4 +1,4 @@
-<!-- Script jQuery per caricare la tabella clienti -->
+<!-- Script per caricare la tabella clienti -->
 function caricaTabellaClienti() {
   $.get("/api/clienti", function(data) {
     var tabellaHtml = "<table class='table table-striped table-bordered table-hover'>";
@@ -23,20 +23,34 @@ function caricaTabellaClienti() {
 <!-- Script per mostrare gli articoli in assistenza del cliente -->
 function caricaArticoliAssistenza(clienteId) {
   $.get("/api/clienti/" + clienteId + "/assistenza", function(data) {
-    var articoliHtml = "<h3>Articoli in Assistenza</h3>";
-    if (data.length > 0) {
-      articoliHtml += "<ul>";
-      for (var i = 0; i < data.length; i++) {
-        var articolo = data[i];
-        articoliHtml += "<li>" + articolo.nome + "</li>";
+    // Chiamata separata per ottenere il nome del cliente
+    $.get("/api/clienti/" + clienteId, function(cliente) {
+      var tableHtml = "<h3>Articoli in Assistenza per il cliente: " + cliente.nome + " " + cliente.cognome +"</h3>";
+      if (data && data.length > 0) {
+        tableHtml += "<table class='table table-striped table-bordered table-hover'>";
+        tableHtml += "<tr><th>Marca</th><th>Modello</th><th>Tipo Guasto</th><th>Assistenza</th></tr>";
+        for (var i = 0; i < data.length; i++) {
+          var articolo = data[i];
+          tableHtml += "<tr>";
+          tableHtml += "<td>" + articolo.marca + "</td>";
+          tableHtml += "<td>" + articolo.modello + "</td>";
+          tableHtml += "<td>" + articolo.tipo_guasto + "</td>";
+          tableHtml += "<td>" + (articolo.assistenza ? articolo.assistenza.nome : '') + "</td>";
+          tableHtml += "</tr>";
+        }
+        tableHtml += "</table>";
+      } else {
+        tableHtml += "<p>Nessun articolo in assistenza per questo cliente.</p>";
       }
-      articoliHtml += "</ul>";
-    } else {
-      articoliHtml += "<p>Nessun articolo in assistenza per questo cliente.</p>";
-    }
-    $("#tabellaContainer").html(articoliHtml);
+      $("#tabellaContainer").html(tableHtml);
+    });
+  }).fail(function() {
+    $("#tabellaContainer").html("<p>Errore durante il recupero degli articoli in assistenza.</p>");
+  }).always(function() {
+    $("#loader").hide();
   });
 }
+
 
 
 <!-- Script per modificare i dettagli clienti -->

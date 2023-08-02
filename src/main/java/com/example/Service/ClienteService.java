@@ -25,9 +25,12 @@ public class ClienteService {
         Optional<Cliente> optionalCliente = clienteRepository.findById(id);
         return optionalCliente.orElse(null);
     }
+
+
     //il metodo accetta un oggetto Cliente e verifica se il cliente esiste nel database utilizzando il suo ID.
     // Se il cliente esiste, i dati del cliente esistente vengono aggiornati con quelli forniti
     // e il cliente aggiornato viene salvato nel database utilizzando il metodo save del repository.
+    // se il cliente non esiste da un messaggio di errore
     public Cliente aggiornaCliente(Cliente cliente) {
         Optional<Cliente> clienteEsistente = clienteRepository.findById(cliente.getId());
         if (clienteEsistente.isPresent()) {
@@ -46,8 +49,5 @@ public class ClienteService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Impossibile eliminare aggiornare il cliente");
         }
     }
-
-
-
 
 }
