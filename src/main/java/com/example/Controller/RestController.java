@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api")
@@ -71,6 +72,56 @@ public class RestController {
         }
     }
 
+    // Se il cliente viene trovato, viene restituito un oggetto ResponseEntity con lo stato HTTP 200 (OK) e il corpo della risposta contenente l'oggetto Cliente.
+    // Se il cliente non viene trovato, viene restituito un oggetto ResponseEntity con lo stato HTTP 404 (Not Found) senza corpo della risposta.
+    @GetMapping("/clienti/{id}")
+    public ResponseEntity<Cliente> getCliente(@PathVariable Long id) {
+        Cliente cliente = clienteService.getClienteById(id);
+        if (cliente != null) {
+            return ResponseEntity.ok(cliente);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    //il controller recupera il cliente esistente dal database utilizzando l'ID fornito e aggiorna i dati con quelli forniti nel corpo della richiesta.
+    // Infine, viene restituita una risposta HTTP corrispondente al risultato dell'aggiornamento.
+    @PutMapping("/modclienti/{id}")
+    public ResponseEntity<String> aggiornaCliente(@PathVariable("id") Long id, @RequestBody Cliente clienteModificato) {
+        Cliente clienteEsistente = clienteService.getClienteById(id);
+        if (clienteEsistente != null) {
+            clienteEsistente.setNome(clienteModificato.getNome());
+            clienteEsistente.setCognome(clienteModificato.getCognome());
+            clienteEsistente.setIndirizzo(clienteModificato.getIndirizzo());
+            clienteEsistente.setCap(clienteModificato.getCap());
+            clienteEsistente.setComune(clienteModificato.getComune());
+            clienteEsistente.setProvincia(clienteModificato.getProvincia());
+            clienteEsistente.setTel(clienteModificato.getTel());
+            clienteEsistente.setMail(clienteModificato.getMail());
+
+            clienteService.aggiornaCliente(clienteEsistente);
+
+            return ResponseEntity.ok("Cliente aggiornato con successo");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente non trovato");
+        }
+    }
+
+
+    @GetMapping("/clienti/{id_cliente}/assistenza")
+    public ResponseEntity<List<Articoli>> getProdottiInAssistenza(@PathVariable("id_cliente") Long idCliente) {
+        Cliente cliente = clienteService.getClienteById(idCliente);
+        if (cliente != null) {
+            List<Articoli> prodottiAssistenza = cliente.getArticoli();
+            if (prodottiAssistenza.isEmpty()) {
+                return ResponseEntity.noContent().build(); // Nessun prodotto in assistenza trovato
+            } else {
+                return ResponseEntity.ok(prodottiAssistenza);
+            }
+        } else {
+            return ResponseEntity.notFound().build(); // Cliente non trovato
+        }
+    }
 
 }
 

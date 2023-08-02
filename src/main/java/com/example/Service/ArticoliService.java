@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ArticoliService {
@@ -16,7 +17,4 @@ public class ArticoliService {
         return articoliRepository.findAll();
     }
 
-
-
-    // Altri metodi per gestire operazioni di business sui clienti, ad esempio creazione, aggiornamento, cancellazione, ecc.
 }

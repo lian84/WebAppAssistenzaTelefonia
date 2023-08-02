@@ -1,164 +1,37 @@
-<!-- Script per caricare la tabella clienti -->
+<!-- Script jQuery per caricare la tabella clienti -->
 function caricaTabellaClienti() {
-  $.get("/api/clienti", function(data) {
-    var tabellaHtml = "<table class='table table-striped table-bordered table-hover'>";
-    tabellaHtml += "<thead><tr><th>Cod.Cliente</th><th>Nome e Cognome</th><th>Indirizzo</th><th>Dettagli</th><th>Articoli in Assistenza</th></tr></thead>";
-    tabellaHtml += "<tbody>";
-
-    for (var i = 0; i < data.length; i++) {
-      var cliente = data[i];
-      tabellaHtml += "<tr>";
-      tabellaHtml += "<td>" + cliente.id + "</td>";
-      tabellaHtml += "<td>" + cliente.nome + " " + cliente.cognome + "</td>";
-      tabellaHtml += "<td>" + cliente.indirizzo + ", " + cliente.comune + ", " + cliente.cap + ", " + cliente.provincia + "</td>";
-      tabellaHtml += "<td><button onclick='mostraDettagliCliente(" + cliente.id + ")' class='btn btn-primary'>Dettagli</button></td>";
-      tabellaHtml += "<td><button onclick='caricaArticoliAssistenza(" + cliente.id + ")' class='btn btn-primary'>Articoli in Assistenza</button></td>";
-      tabellaHtml += "</tr>";
-    }
-
-    tabellaHtml += "</tbody></table>";
-    $("#tabellaContainer").html(tabellaHtml);
-  });
-}
-<!-- Script per mostrare gli articoli in assistenza del cliente -->
-function caricaArticoliAssistenza(clienteId) {
-  $.get("/api/clienti/" + clienteId + "/assistenza", function(data) {
-    // Chiamata separata per ottenere il nome del cliente
-    $.get("/api/clienti/" + clienteId, function(cliente) {
-      var tableHtml = "<h3>Articoli in Assistenza per il cliente: " + cliente.nome + " " + cliente.cognome +"</h3>";
-      if (data && data.length > 0) {
-        tableHtml += "<table class='table table-striped table-bordered table-hover'>";
-        tableHtml += "<tr><th>Marca</th><th>Modello</th><th>Tipo Guasto</th><th>Assistenza</th></tr>";
+    $.get("/api/clienti", function(data) {
+        var tabellaHtml = "<table class='table table-striped table-bordered table-hover'>";
+        tabellaHtml += "<thead><tr><th>Cod.Cliente</th><th>Nome</th><th>Cognome</th><th>Indirizzo</th><th>Comune</th><th>CAP</th><th>Prov.</th><th>Telefono</th><th>E-Mail</th><th>Marca</th><th>Modello</th><th>Tipo guasto</th><th>Assistenza</th><th>Art. in ass</th></tr></thead>";
+        tabellaHtml += "<tbody>";
         for (var i = 0; i < data.length; i++) {
-          var articolo = data[i];
-          tableHtml += "<tr>";
-          tableHtml += "<td>" + articolo.marca + "</td>";
-          tableHtml += "<td>" + articolo.modello + "</td>";
-          tableHtml += "<td>" + articolo.tipo_guasto + "</td>";
-          tableHtml += "<td>" + (articolo.assistenza ? articolo.assistenza.nome : '') + "</td>";
-          tableHtml += "</tr>";
+            var cliente = data[i];
+            tabellaHtml += "<tr>";
+            tabellaHtml += "<td>" + cliente.id + "</td>";
+            tabellaHtml += "<td>" + cliente.nome + "</td>";
+            tabellaHtml += "<td>" + cliente.cognome + "</td>";
+            tabellaHtml += "<td>" + cliente.indirizzo + "</td>";
+            tabellaHtml += "<td>" + cliente.comune + "</td>";
+            tabellaHtml += "<td>" + cliente.cap + "</td>";
+            tabellaHtml += "<td>" + cliente.provincia + "</td>";
+            tabellaHtml += "<td>" + cliente.tel + "</td>";
+            tabellaHtml += "<td>" + cliente.mail + "</td>";
+            for (var j = 0; j < cliente.articoli.length; j++) {
+                var articolo = cliente.articoli[j];
+                tabellaHtml += "<td>" + articolo.marca + "</td>";
+                tabellaHtml += "<td>" + articolo.modello + "</td>";
+                tabellaHtml += "<td>" + articolo.tipo_guasto + "</td>";
+                tabellaHtml += "<td>" + articolo.assistenza.nome + ", " + articolo.assistenza.indirizzo + "</td>";
+                if (j == 0) {
+                    tabellaHtml += "<td rowspan='" + cliente.articoli.length + "'>" + cliente.articoli.length + "</td>";
+                }
+                tabellaHtml += "</tr>";
+            }
         }
-        tableHtml += "</table>";
-      } else {
-        tableHtml += "<p>Nessun articolo in assistenza per questo cliente.</p>";
-      }
-      $("#tabellaContainer").html(tableHtml);
+        tabellaHtml += "</tbody></table>";
+        $("#tabellaContainer").html(tabellaHtml);
     });
-  }).fail(function() {
-    $("#tabellaContainer").html("<p>Errore durante il recupero degli articoli in assistenza.</p>");
-  }).always(function() {
-    $("#loader").hide();
-  });
-}
-
-
-
-<!-- Script per modificare i dettagli clienti -->
-function modificaCliente(clienteId, cliente) {
-  // Costruisce la tabella dei dettagli del cliente con campi di input modificabili
-  var dettagliHtml = "<table class='table table-striped'>";
-  dettagliHtml += "<tr><td><strong>Id:</strong></td><td>" + cliente.id + "</td></tr>";
-  dettagliHtml += "<tr><td><strong>Nome:</strong></td><td><input type='text' id='nomeInput' value='" + cliente.nome + "'></td></tr>";
-  dettagliHtml += "<tr><td><strong>Cognome:</strong></td><td><input type='text' id='cognomeInput' value='" + cliente.cognome + "'></td></tr>";
-  dettagliHtml += "<tr><td><strong>Via:</strong></td><td><input type='text' id='indirizzoInput' value='" + cliente.indirizzo + "'></td></tr>";
-  dettagliHtml += "<tr><td><strong>CAP:</strong></td><td><input type='text' id='capInput' value='" + cliente.cap + "'></td></tr>";
-  dettagliHtml += "<tr><td><strong>Comune:</strong></td><td><input type='text' id='comuneInput' value='" + cliente.comune + "'></td></tr>";
-  dettagliHtml += "<tr><td><strong>Provincia:</strong></td><td><input type='text' id='provinciaInput' value='" + cliente.provincia + "'></td></tr>";
-  dettagliHtml += "<tr><td><strong>Telefono:</strong></td><td><input type='text' id='telefonoInput' value='" + cliente.tel + "'></td></tr>";
-  dettagliHtml += "<tr><td><strong>E-Mail:</strong></td><td><input type='text' id='emailInput' value='" + cliente.mail + "'></td></tr>";
-
-  // Aggiunge il pulsante di salvataggio dei dati
-  dettagliHtml += "<tr><td colspan='2'><button class='btn btn-primary' id='salvaButton' onclick='salvaModificheCliente(" + clienteId + ")'>Salva</button> <button class='btn btn-primary' onclick='caricaTabellaClienti()'>Ritorna alla tabella clienti</button></td></tr>";
-  dettagliHtml += "</table>";
-
-  // Aggiorna il contenuto del container dei dettagli del cliente
-  $("#tabellaContainer").html(dettagliHtml);
-}
-
-function salvaModificheCliente(clienteId) {
-  // Recupera i valori modificati dai campi di input
-  var nome = $("#nomeInput").val();
-  var cognome = $("#cognomeInput").val();
-  var indirizzo = $("#indirizzoInput").val();
-  var cap = $("#capInput").val();
-  var comune = $("#comuneInput").val();
-  var provincia = $("#provinciaInput").val();
-  var telefono = $("#telefonoInput").val();
-  var email = $("#emailInput").val();
-
-  // Costruisce l'oggetto cliente con i dati modificati
-  var cliente = {
-    id: clienteId,
-    nome: nome,
-    cognome: cognome,
-    indirizzo: indirizzo,
-    cap: cap,
-    comune: comune,
-    provincia: provincia,
-    tel: telefono,
-    mail: email
-  };
-
-  // Effettua una chiamata AJAX per salvare le modifiche del cliente
-  $.ajax({
-    url: "/api/modclienti/" + clienteId,
-    method: "PUT",
-    data: JSON.stringify(cliente),
-    contentType: "application/json",  // confermo al server che sono dati json
-    success: function(response) {
-      // Visualizza un messaggio di successo in console
-      console.log("Modifiche salvate con successo.");
-      ripristinaStatoModifica(clienteId, cliente);
-      mostraPopup("Cliente modificato con successo.");
-    },
-    error: function(error) {
-      // Visualizza un messaggio di errore in console
-      console.error("Si è verificato un errore durante il salvataggio delle modifiche.");
-      mostraPopup("Non é stato possibile modificare il cliente");
-    }
-  });
-}
-
-<!-- Script per ripristinare lo stato -pronto per la modifica- -->
-function ripristinaStatoModifica(clienteId, cliente) {
-  // Ripristina la scritta del pulsante a "Modifica" e assegna la funzione di modifica
-  $("#salvaButton").text("Modifica").attr("onclick", "modificaCliente(" + clienteId + "," + JSON.stringify(cliente) + ")");
-
-  // Rendi nuovamente i campi di input non modificabili
-  $("#nomeInput").prop("disabled", true);
-  $("#cognomeInput").prop("disabled", true);
-  $("#indirizzoInput").prop("disabled", true);
-  $("#capInput").prop("disabled", true);
-  $("#comuneInput").prop("disabled", true);
-  $("#provinciaInput").prop("disabled", true);
-  $("#telefonoInput").prop("disabled", true);
-  $("#emailInput").prop("disabled", true);
-}
-
-<!-- Script per caricare dettagli clienti ed eventualmente modificarli -->
-function mostraDettagliCliente(clienteId) {
-  // Effettua una chiamata AJAX per ottenere i dettagli del cliente
-  $.get("/api/clienti/" + clienteId, function(cliente) {
-    // Costruisce la tabella dei dettagli del cliente
-    var dettagliHtml = "<table class='table table-striped'>";
-    dettagliHtml += "<tr><td><strong>Id:</strong></td><td>" + cliente.id + "</td></tr>";
-    dettagliHtml += "<tr><td><strong>Nome:</strong></td><td>" + cliente.nome + "</td></tr>";
-    dettagliHtml += "<tr><td><strong>Cognome:</strong></td><td>" + cliente.cognome + "</td></tr>";
-    dettagliHtml += "<tr><td><strong>Via:</strong></td><td>" + cliente.indirizzo + "</td></tr>";
-    dettagliHtml += "<tr><td><strong>CAP:</strong></td><td>" + cliente.cap + "</td></tr>";
-    dettagliHtml += "<tr><td><strong>Comune:</strong></td><td>" + cliente.comune + "</td></tr>";
-    dettagliHtml += "<tr><td><strong>Provincia:</strong></td><td>" + cliente.provincia + "</td></tr>";
-    dettagliHtml += "<tr><td><strong>Telefono:</strong></td><td>" + cliente.tel + "</td></tr>";
-    dettagliHtml += "<tr><td><strong>E-Mail:</strong></td><td>" + cliente.mail + "</td></tr>";
-
-    // Aggiunge il pulsante di modifica dei dati
-    dettagliHtml += "<tr><td colspan='2'><button class='btn btn-primary' onclick='modificaCliente(" + clienteId + ", " + JSON.stringify(cliente) + ")'>Modifica</button>  <button class='btn btn-primary' onclick='caricaTabellaClienti()'>Ritorna alla tabella clienti</button></td></tr>";
-    dettagliHtml += "</table>";
-
-    // Aggiorna il contenuto del container dei dettagli del cliente
-    $("#tabellaContainer").html(dettagliHtml);
-  });
-}
+};
 
 <!-- Script jQuery per caricare la tabella assistenza -->
   function caricaTabellaAssistenza() {

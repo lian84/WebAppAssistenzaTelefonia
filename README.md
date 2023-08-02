@@ -79,4 +79,16 @@ Elenco delle principali dipendenze utilizzate nella web app:
 - MySQL Connector
 - JQuery (versione 3.6.0)
 
----
+
+## Principali endpoint presenti nell'applicazione
+
+```
+@RequestMapping("/api")
+├── @GetMapping("/clienti")                  #Lettura lista clienti
+├── @GetMapping("/articoli")                 #Lettura lista articoli
+├── @PutMapping("/upassistenza/{id}")        #Aggiornamento centro assistenza
+├── @DeleteMapping("/assistenza/{id}")       #Cancellazione centro assistenza 
+├── @PostMapping("/assistenza")              #Crea centro assistenza                         
+└── continue.....   
+```
+
