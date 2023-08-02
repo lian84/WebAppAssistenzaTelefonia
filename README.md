@@ -1,6 +1,10 @@
 # AssistenzaTelefonia
 
-Questa webApp ha lo scopo mi testare alcuni funzioni realizzabili con l'uso delle nozioni apprese durante la mia formazione.
+La WebApp simula la gestione di un centro raccolta di apparecchi elettronici dove ogni apparechio portato in assientenza
+viene inviato al rispetivo centro assistenza che tratta quella tipologia di prodotto e quella specifica marca. Nel programma
+possono essere aggiunti e cancellati prodotti, assegnati al centro assistenza, vedere lo stato di lavorazione.
+Il tutto é reso dinamico dall'utilizzo di jquery nel frontend, per il backend é stato utilizzato invece il linguaggio Java. 
+Gli accessi alla WebApp sono controllati da nome e password con l'ausilio di Spring Security
 
 ## Installazione
 
@@ -75,6 +79,7 @@ Elenco delle principali dipendenze utilizzate nella web app:
 - MySQL Connector
 - JQuery (versione 3.6.0)
 
+
 ## Principali endpoint presenti nell'applicazione
 
 ```
@@ -87,4 +92,3 @@ Elenco delle principali dipendenze utilizzate nella web app:
 └── continue.....   
 ```
 
----
