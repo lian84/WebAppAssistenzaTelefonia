@@ -1,24 +1,10 @@
 package com.example.Service;
 
-import org.springframework.stereotype.Service;
-
 import com.example.Model.Utente;
-import com.example.Repository.UtenteRepository;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
-@Service
-public class UtenteService {
 
-    private UtenteRepository utenteRepository;
+public interface UtenteService extends UserDetailsService {
 
-    public UtenteService(UtenteRepository utenteRepository) {
-        this.utenteRepository = utenteRepository;
-    }
-
-    public Utente autenticazione(String nomeUtente, String password) {
-        Utente utente = utenteRepository.findByNomeUtente(nomeUtente);
-        if (utente != null && utente.getPassword().equals(password)) {
-            return utente;
-        }
-        return null;
-    }
+    Utente findByNomeUtente(String nomeUtente);
 }

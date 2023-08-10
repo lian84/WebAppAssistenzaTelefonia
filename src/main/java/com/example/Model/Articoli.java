@@ -26,7 +26,7 @@ public class Articoli {
 	private Assistenza assistenza;
 
 
-//un cliente puó avere piú articoli
+	//un cliente puó avere piú articoli
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "id_cliente", nullable = false)
 	@JsonBackReference
@@ -34,10 +34,20 @@ public class Articoli {
 	private Cliente cliente;
 
 
+	//un articolo puó avere un solo stato assistenza
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@JoinColumn(name = "id_stato_assistenza", nullable = false)
+	private StatoAssistenza stato;
+
+
+
+	//Costruttore
 	public Articoli() {
 		super();
 	}
 
+
+	//classi getter e setter
 	public Long getId() {
 		return id;
 	}
@@ -92,5 +102,13 @@ public class Articoli {
 
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
+	}
+
+	public StatoAssistenza getStato() {
+		return stato;
+	}
+
+	public void setStato(StatoAssistenza stato) {
+		this.stato = stato;
 	}
 }

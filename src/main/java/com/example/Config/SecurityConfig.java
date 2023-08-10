@@ -1,5 +1,6 @@
 package com.example.Config;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +8,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,25 +27,50 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .passwordEncoder(passwordEncoder());
     }
 
-    @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests()
+                .authorizeRequests()
                 .antMatchers("/login").permitAll()
-            //    .antMatchers("/admin/**").hasRole("ADMIN") // Esempio: Solo gli utenti con ruolo ADMIN possono accedere alle pagine sotto /admin
-         //       .antMatchers("/user/**").hasAnyRole("ADMIN", "USER") // Esempio: Gli utenti con ruolo ADMIN o USER possono accedere alle pagine sotto /user
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/user/**").hasAnyRole("ADMIN", "USER")
                 .anyRequest().authenticated()
                 .and()
-            .formLogin()
-                .loginPage("/login")   //la pagina da dove si fa login
-                .defaultSuccessUrl("/dashboard")  //la pagina dove si viene dirottati dopo la login
+                .formLogin()
+                .loginPage("/login")
+                .defaultSuccessUrl("/", false)
+                .successHandler((request, response, authentication) -> {
+                    System.out.println("Benvenuto " + (authentication.getName()));
+                    System.out.println("Ruolo: " + authentication.getAuthorities());
+
+                    String targetUrl = determineTargetUrl(authentication);
+
+                    response.sendRedirect(targetUrl);
+                })
                 .and()
-            .logout()
-                .logoutUrl("/logout") //il link dove accedere per uscire dalla sessione
-                .logoutSuccessUrl("/login") //il link che viene aperto dopo aver chiuso la sessione
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login")
                 .and()
-            .csrf().disable();
+                .csrf().disable();
     }
+
+    private String determineTargetUrl(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "/login";
+        }
+
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            if (authority.getAuthority().equals("ROLE_ADMIN")) {
+                return "/admin/dashboard/";
+            }
+            if (authority.getAuthority().equals("ROLE_USER")) {
+                return "/user/utente/";
+            }
+        }
+
+        return "/altro/";
+    }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

@@ -28,7 +28,7 @@ function caricaArticoliAssistenza(clienteId) {
       var tableHtml = "<h3>Articoli in Assistenza per il cliente: " + cliente.nome + " " + cliente.cognome +"</h3>";
       if (data && data.length > 0) {
         tableHtml += "<table class='table table-striped table-bordered table-hover'>";
-        tableHtml += "<tr><th>Marca</th><th>Modello</th><th>Tipo Guasto</th><th>Assistenza</th></tr>";
+        tableHtml += "<tr><th>Marca</th><th>Modello</th><th>Tipo Guasto</th><th>Assistenza</th><th>Stato Assistenza</th></tr>";
         for (var i = 0; i < data.length; i++) {
           var articolo = data[i];
           tableHtml += "<tr>";
@@ -36,6 +36,7 @@ function caricaArticoliAssistenza(clienteId) {
           tableHtml += "<td>" + articolo.modello + "</td>";
           tableHtml += "<td>" + articolo.tipo_guasto + "</td>";
           tableHtml += "<td>" + (articolo.assistenza ? articolo.assistenza.nome : '') + "</td>";
+          tableHtml += "<td>" + (articolo.stato ? articolo.stato.stato : '') + "</td>";
           tableHtml += "</tr>";
         }
         tableHtml += "</table>";

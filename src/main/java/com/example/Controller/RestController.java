@@ -3,15 +3,22 @@ package com.example.Controller;
 import com.example.Model.Assistenza;
 import com.example.Model.Cliente;
 import com.example.Model.Articoli;
+import com.example.Model.Utente;
 import com.example.Service.ArticoliService;
 import com.example.Service.AssistenzaService;
 import com.example.Service.ClienteService;
+import com.example.Service.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @org.springframework.web.bind.annotation.RestController
@@ -26,6 +33,9 @@ public class RestController {
 
     @Autowired
     private AssistenzaService assistenzaService;
+
+    @Autowired
+    private UtenteService  utenteService;
 
 
 
@@ -120,6 +130,25 @@ public class RestController {
             }
         } else {
             return ResponseEntity.notFound().build(); // Cliente non trovato
+        }
+    }
+
+    @GetMapping("/utente/dati")
+    public ResponseEntity<Map<String, Object>> getUserDetails(Authentication authentication) {
+        String username = authentication.getName();
+        Utente utente = utenteService.findByNomeUtente(username);
+
+        if (utente != null) {
+            Cliente cliente = utente.getCliente();
+
+            // Creazione di una mappa per rappresentare l'oggetto JSON di risposta
+            Map<String, Object> response = new HashMap<>();
+            response.put("nomeUtente", utente.getNomeUtente());
+            response.put("cliente", cliente);
+
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 

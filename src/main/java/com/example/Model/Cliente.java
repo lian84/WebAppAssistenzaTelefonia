@@ -40,6 +40,11 @@ public class Cliente {
     @JsonManagedReference
     private List<Articoli> articoli;
 
+    //un cliente corrisponde ad un utente(solo se gli viene creata l'utenza)
+    @OneToOne
+    @JoinColumn(name = "id_utente")
+    private Utente utente;
+
     public Cliente() {
     }
 

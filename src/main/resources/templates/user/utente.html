@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dati Utente</title>
+    <!-- Aggiungi il link a Bootstrap CDN per lo stile -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="text-center">Dati Utente</h1>
+        </div>
+        <div class="card-body">
+            <h4 class="card-title">Informazioni Utente</h4>
+            <p><strong>Nome Utente:</strong> <span id="username"></span></p>
+            <h4 class="card-title mt-4">Informazioni Cliente</h4>
+            <ul>
+                <li><strong>Nome:</strong> <span id="clientNome"></span></li>
+                <li><strong>Cognome:</strong> <span id="clientCognome"></span></li>
+                <li><strong>Indirizzo:</strong> <span id="clientIndirizzo"></span></li>
+                <li><strong>Comune:</strong> <span id="clientComune"></span></li>
+                <li><strong>Cap:</strong> <span id="clientCap"></span></li>
+                <li><strong>Provincia:</strong> <span id="clientProvincia"></span></li>
+                <li><strong>Telefono:</strong> <span id="clientTelefono"></span></li>
+                <li><strong>Email:</strong> <span id="clientEmail"></span></li>
+            </ul>
+
+            <h4 class="card-title mt-4">Prodotto in Assistenza</h4>
+            <ul>
+                <li><strong>Marca:</strong> <span id="productMarca"></span></li>
+                <li><strong>Modello:</strong> <span id="productModello"></span></li>
+                <li><strong>Tipo Guasto:</strong> <span id="productTipoGuasto"></span></li>
+                <li><strong>Assistenza:</strong> <span id="productAssistenza"></span></li>
+                <li><strong>Stato Assistenza:</strong> <span id="productStatoAssistenza"></span></li>
+            </ul>
+        </div>
+        <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Carica anche lo script di Bootstrap per l'interazione con gli elementi UI -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $.get("/api/utente/dati", function(data) {
+            $("#username").text(data.nomeUtente);
+
+            var cliente = data.cliente;
+            if (cliente) {
+                $("#clientNome").text(cliente.nome);
+                $("#clientCognome").text(cliente.cognome);
+                $("#clientIndirizzo").text(cliente.indirizzo);
+                $("#clientComune").text(cliente.comune);
+                $("#clientCap").text(cliente.cap);
+                $("#clientProvincia").text(cliente.provincia);
+                $("#clientTelefono").text(cliente.tel);
+                $("#clientEmail").text(cliente.mail);
+            }
+            var articoli = cliente.articoli;
+            if (articoli && articoli.length > 0) {
+                var product = articoli[0]; // Considera solo il primo articolo in assistenza
+                $("#productMarca").text(product.marca);
+                $("#productModello").text(product.modello);
+                $("#productTipoGuasto").text(product.tipo_guasto);
+                if (product.assistenza) {
+                    $("#productAssistenza").text(product.assistenza.nome);
+                }
+                if (product.stato) {
+                    $("#productStatoAssistenza").text(product.stato.stato);
+                }
+            }
+
+        });
+    });
+</script>
+
+
+</body>
+</html>
+
